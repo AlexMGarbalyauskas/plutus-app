@@ -1,25 +1,36 @@
-import { useCallback, useMemo } from "react";
-import { useAccount, useWalletClient } from "wagmi";
-import { getContract } from "viem";
+import { useCallback, useState } from "react";
+import { useAccount, useWriteContract } from "wagmi";
 import { PLUTUS_ABI } from "@/assets/abis/PLUTUS_ABI";
+import { TOKEN_LIST } from "@/utils/tokenlist";
 
-const usePlutus = () => {
-  const client = useWalletClient();
+export const usePlutus = () => {
+  const { writeContract } = useWriteContract();
+
+  const [selectedCoin, setSelectedCoin] = useState(TOKEN_LIST[0]);
+
   const account = useAccount();
 
-  const contract = useMemo(() => {
-    if (account.address) {
-      return getContract({
+  const pay = useCallback(
+    (parameters: { tokenAmount: bigint; usdcAmount: bigint }) => {
+      const transaction = writeContract({
         abi: PLUTUS_ABI,
         address: import.meta.env.PLUTUS_ADDRESS,
-        client: client.data,
+        functionName: "swapTokensForUSDC",
+        args: [
+          selectedCoin.address,
+          parameters.tokenAmount,
+          parameters.usdcAmount,
+        ],
       });
-    }
 
-    return null;
-  }, [client, account]);
+      return transaction;
+    },
+    [selectedCoin.address, writeContract]
+  );
 
-  const pay = useCallback(() => {}, []);
+  const getQuote = useCallback((parameters: { usdcAmount: bigint }) => {
+    return Math.random() + Number(parameters.usdcAmount);
+  }, []);
 
-  return { account };
+  return { pay, account, selectedCoin, setSelectedCoin, getQuote };
 };
