@@ -32,6 +32,10 @@ export function Register() {
 
   const submit = useCallback(
     (data: z.infer<typeof registerSchema>) => {
+      if (!plutus.account.address) {
+        return;
+      }
+
       console.log(data);
 
       plutus.user.setUser({
@@ -96,13 +100,16 @@ export function Register() {
                 />
               </div>
             </div>
-            <Button onClick={() => openConnectModal()}>Connect Wallet</Button>
             <Button
               type="submit"
               className="w-full"
-              disabled={!plutus.account.address}
+              onClick={() => {
+                if (openConnectModal) {
+                  openConnectModal();
+                }
+              }}
             >
-              Submit
+              {plutus.account.address ? "Submit" : "Connect Wallet"}
             </Button>
           </form>
         </Form>

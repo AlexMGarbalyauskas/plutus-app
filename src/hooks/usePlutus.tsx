@@ -9,6 +9,7 @@ import { useAccount, useWatchContractEvent, useWriteContract } from "wagmi";
 import { PLUTUS_ABI } from "@/assets/abis/PLUTUS_ABI";
 import { Coin, QUOTE_TOKEN, TOKEN_LIST } from "@/utils/tokenlist";
 import axios from "axios";
+import { Address } from "viem";
 
 export type User = {
   name: string;
@@ -97,7 +98,7 @@ export const usePlutus = () => {
         address: import.meta.env.PLUTUS_ADDRESS,
         functionName: "swapTokensForUSDC",
         args: [
-          ctx.selectedCoin.address,
+          ctx.selectedCoin.address as Address,
           parameters.tokenAmount,
           parameters.usdcAmount,
         ],
@@ -114,18 +115,20 @@ export const usePlutus = () => {
     //   chain: EvmChain.AVALANCHE,
     // });
 
-    const { data } = await axios.get<{
-      tokenOne: number;
-      tokenTwo: number;
-      ratio: number;
-    }>("https://swap-5qdn.onrender.com/tokenPrice", {
-      params: {
-        addressOne: ctx.selectedCoin.address,
-        addressTwo: QUOTE_TOKEN.address,
-      },
-    });
+    // const { data } = await axios.get<{
+    //   tokenOne: number;
+    //   tokenTwo: number;
+    //   ratio: number;
+    // }>("https://swap-5qdn.onrender.com/tokenPrice", {
+    //   params: {
+    //     addressOne: ctx.selectedCoin.address,
+    //     addressTwo: QUOTE_TOKEN.address,
+    //   },
+    // });
 
-    return data.ratio;
+    // return data.ratio;
+
+    return Math.random();
   }, [ctx.selectedCoin.address]);
 
   return {

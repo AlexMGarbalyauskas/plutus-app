@@ -7,7 +7,7 @@ import Pay from "./pages/user/Pay";
 const router = createBrowserRouter([
   {
     path: "",
-    element: <App  />,
+    element: <App />,
   },
   {
     path: "user",
@@ -24,15 +24,6 @@ const router = createBrowserRouter([
       {
         path: "pay",
         element: <Pay />,
-      },
-    ],
-  },
-  {
-    path: "store",
-    children: [
-      {
-        path: "payments",
-        element: <div>Payments</div>,
       },
     ],
   },
