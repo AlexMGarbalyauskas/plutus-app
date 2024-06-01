@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  readonly PLUTUS_ADDRESS: `0x${string}`;
+  readonly VITE_PLUTUS_ADDRESS: `0x${string}`;
 }
 
 interface ImportMeta {

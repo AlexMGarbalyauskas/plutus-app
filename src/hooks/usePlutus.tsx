@@ -3,11 +3,12 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useState,
 } from "react";
-import { useAccount, useWatchContractEvent, useWriteContract } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 import { PLUTUS_ABI } from "@/assets/abis/PLUTUS_ABI";
-import { Coin, QUOTE_TOKEN, TOKEN_LIST } from "@/utils/tokenlist";
+import { Coin, TOKEN_LIST } from "@/utils/tokenlist";
 import axios from "axios";
 import { Address } from "viem";
 
@@ -17,12 +18,6 @@ export type User = {
   amountToPay: number;
 };
 
-export type Payment = {
-  name: string;
-  tokenAmount: bigint;
-  usdcAmount: bigint;
-};
-
 type PlutusContextState = {
   user: User;
   setUser: (user: User) => void;
@@ -30,7 +25,7 @@ type PlutusContextState = {
   selectedCoin: Coin;
   setSelectedCoin: (coin: Coin) => void;
 
-  payments: Payment[];
+  tickers: AlternativeTicker[];
 };
 
 const initialContext: PlutusContextState = {
@@ -42,7 +37,7 @@ const initialContext: PlutusContextState = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setSelectedCoin(_) {},
 
-  payments: [],
+  tickers: [],
 };
 
 const PlutusContext = createContext<PlutusContextState>(initialContext);
@@ -56,33 +51,47 @@ export const PlutusProvider: React.FC<{ children: ReactNode }> = ({
     amountToPay: 0,
   });
   const [selectedCoin, setSelectedCoin] = useState<Coin>(TOKEN_LIST[0]);
+  const [tickers, setTickers] = useState<AlternativeTicker[]>([]);
 
-  const [payments, setPayments] = useState<Payment[]>([]);
+  const fetchPrices = useCallback(async () => {
+    const res = await axios.get<AlternativeTicker[]>(
+      "https://corsproxy.io/?https://api.alternative.me/v1/ticker/"
+    );
 
-  useWatchContractEvent({
-    address: import.meta.env.PLUTUS_ADDRESS,
-    abi: PLUTUS_ABI,
-    eventName: "Payment",
-    onLogs(logs) {
-      const payment = logs.map((log) => {
-        const [name, tokenAmount, usdcAmount] = log.data; // TODO type with correct
-        return { name, tokenAmount, usdcAmount };
-      });
+    setTickers(res.data);
+  }, []);
 
-      console.log(payment);
-
-      // setPayments((prev) => [...payment.reverse(), ...prev]); // TODO add correct type
-      setPayments([]);
-    },
-  });
+  useEffect(() => {
+    if (tickers.length === 0) {
+      fetchPrices();
+    }
+  }, [fetchPrices, tickers.length]);
 
   return (
     <PlutusContext.Provider
-      value={{ selectedCoin, setSelectedCoin, user, setUser, payments }}
+      value={{ selectedCoin, setSelectedCoin, user, setUser, tickers }}
     >
       {children}
     </PlutusContext.Provider>
   );
+};
+
+type AlternativeTicker = {
+  id: string;
+  name: string;
+  symbol: string;
+  rank: string;
+  price_usd: string;
+  price_btc: string;
+  "24h_volume_usd": string;
+  market_cap_usd: string;
+  available_supply: string;
+  total_supply: string;
+  max_supply: string;
+  percent_change_1h: string;
+  percent_change_24h: string;
+  percent_change_7d: string;
+  last_updated: string;
 };
 
 export const usePlutus = () => {
@@ -93,9 +102,15 @@ export const usePlutus = () => {
 
   const pay = useCallback(
     async (parameters: { tokenAmount: bigint; usdcAmount: bigint }) => {
+      console.log("account", account.address);
+      console.log("parameters", parameters);
+
+      console.log("token address", ctx.selectedCoin.address);
+
+      console.log("address", import.meta.env.VITE_PLUTUS_ADDRESS);
       const transaction = await writeContractAsync({
         abi: PLUTUS_ABI,
-        address: import.meta.env.PLUTUS_ADDRESS,
+        address: import.meta.env.VITE_PLUTUS_ADDRESS,
         functionName: "swapTokensForUSDC",
         args: [
           ctx.selectedCoin.address as Address,
@@ -110,26 +125,20 @@ export const usePlutus = () => {
   );
 
   const getQuote = useCallback(async () => {
-    // const response = await Moralis.EvmApi.token.getTokenPrice({
-    //   address: ctx.selectedCoin.s,
-    //   chain: EvmChain.AVALANCHE,
-    // });
+    const parsedSymbol = ctx.selectedCoin.ticker.startsWith("W")
+      ? ctx.selectedCoin.ticker.slice(1)
+      : ctx.selectedCoin.ticker;
+    // find inside tickers
 
-    // const { data } = await axios.get<{
-    //   tokenOne: number;
-    //   tokenTwo: number;
-    //   ratio: number;
-    // }>("https://swap-5qdn.onrender.com/tokenPrice", {
-    //   params: {
-    //     addressOne: ctx.selectedCoin.address,
-    //     addressTwo: QUOTE_TOKEN.address,
-    //   },
-    // });
+    console.log("parsedSymbol", parsedSymbol);
 
-    // return data.ratio;
+    console.log("tickers", ctx.tickers);
+    const quote = ctx.tickers.find((ticker) => ticker.symbol === parsedSymbol);
 
-    return Math.random();
-  }, [ctx.selectedCoin.address]);
+    console.log("quote", quote);
+
+    return Number(quote!.price_usd) * 0.9;
+  }, [ctx.selectedCoin.ticker, ctx.tickers]);
 
   return {
     pay,
