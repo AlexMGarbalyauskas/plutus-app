@@ -34,11 +34,11 @@ type PlutusContextState = {
 const initialContext: PlutusContextState = {
   user: { name: "", taxNumber: "" },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setUser(_) {},
+  setUser(_) { },
 
   selectedCoin: TOKEN_LIST[0],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setSelectedCoin(_) {},
+  setSelectedCoin(_) { },
 
   payments: [],
 };
@@ -97,6 +97,7 @@ export const usePlutus = () => {
           parameters.usdcAmount,
         ],
       });
+
 
       return transaction;
     },
