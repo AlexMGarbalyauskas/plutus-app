@@ -4,9 +4,7 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { registerSchema } from "@/schemes/userSchemes";
@@ -17,13 +15,19 @@ import * as z from "zod";
 import { usePlutus } from "@/hooks/usePlutus";
 import RegisteredInput from "@/components/form/RegisteredInput";
 import { Form } from "@/components/ui/form";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 export function Register() {
+  const { openConnectModal } = useConnectModal();
   const plutus = usePlutus();
   const navigate = useNavigate();
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
-    defaultValues: {},
+    defaultValues: {
+      name: "",
+      amount: 0,
+      taxNumber: "",
+    },
   });
 
   const submit = useCallback(
@@ -36,7 +40,7 @@ export function Register() {
         amountToPay: data.amount,
       });
 
-      navigate("/pay", { replace: true });
+      navigate("/user/pay", { replace: true });
     },
     [navigate, plutus.user]
   );
@@ -53,7 +57,7 @@ export function Register() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(submit)} className="space-y-4">
             <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+              {/* <Label htmlFor="name">Name</Label> */}
               <RegisteredInput
                 hookForm={form}
                 id="name"
@@ -61,43 +65,48 @@ export function Register() {
                 placeholder="Enter your name"
                 className="pl-7"
                 name={"name"}
+                required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="taxNumber">Tax Number</Label>
+              {/* <Label htmlFor="taxNumber">Tax Number</Label> */}
               <RegisteredInput
                 hookForm={form}
                 id="taxNumber"
                 type="string"
-                placeholder="Enter amount"
+                placeholder="Enter your tax number"
                 className="pl-7"
                 name={"taxNumber"}
+                required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="amount">Amount to Pay</Label>
               <div className="relative">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-500">
                   $
                 </span>
                 <RegisteredInput
-                  hookForm={}
+                  hookForm={form}
                   id="amount"
                   type="number"
                   placeholder="Enter amount"
                   className="pl-7"
                   name={"amount"}
+                  required
                 />
               </div>
             </div>
+            <Button onClick={() => openConnectModal()}>Connect Wallet</Button>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={!plutus.account.address}
+            >
+              Submit
+            </Button>
           </form>
         </Form>
       </CardContent>
-      <CardFooter>
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

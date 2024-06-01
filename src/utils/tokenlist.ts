@@ -7,27 +7,6 @@ export const TOKEN_LIST = [
     decimals: 18,
   },
   {
-    ticker: "USDT",
-    img: "https://cdn.moralis.io/eth/0xdac17f958d2ee523a2206206994597c13d831ec7.png",
-    name: "Tether USD",
-    address: "0xc7198437980c041c805A1EDcbA50c1Ce5db95118",
-    decimals: 6,
-  },
-  {
-    ticker: "GUSD",
-    img: "https://cdn.moralis.io/eth/0x056fd409e1d7a124bd7017459dfea2f387b6d5cd.png",
-    name: "Gemini USD",
-    address: "0x3e02C298e1eFbB90A598D5137208C4F647CF71Fb",
-    decimals: 2,
-  },
-  {
-    ticker: "DAI",
-    img: "https://cdn.moralis.io/eth/0x6b175474e89094c44da98b954eedeac495271d0f.png",
-    name: "Dai Stablecoin",
-    address: "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70",
-    decimals: 18,
-  },
-  {
     ticker: "WETH",
     img: "https://cdn.moralis.io/eth/0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2.png",
     name: "Wrapped Ethereum",
