@@ -91,3 +91,5 @@ export const TOKEN_LIST = [
     decimals: 18,
   },
 ] as const;
+
+export type Coin = (typeof TOKEN_LIST)[0];
