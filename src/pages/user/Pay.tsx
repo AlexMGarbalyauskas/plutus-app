@@ -5,17 +5,13 @@ import {
   DownOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import tokenList from "../tokenList.json";
-import axios from "axios";
 import { useSendTransaction, useWaitForTransaction } from "wagmi";
 import { usePlutus } from "@/hooks/usePlutus";
+import { Coin, TOKEN_LIST } from "@/utils/tokenlist";
 
-function Swap(props) {
+function Pay() {
   const plutus = usePlutus();
 
-  const { address, isConnected } = props;
-  const [messageApi, contextHolder] = message.useMessage();
-  const [slippage, setSlippage] = useState(2.5);
   const [tokenOneAmount, setTokenOneAmount] = useState(null);
   const [tokenTwoAmount, setTokenTwoAmount] = useState(null);
   const [tokenOne, setTokenOne] = useState(tokenList[0]);
@@ -42,12 +38,10 @@ function Swap(props) {
     hash: data?.hash,
   });
 
-  function handleSlippageChange(e) {
-    setSlippage(e.target.value);
-  }
-
   function changeAmount(e) {
     setTokenOneAmount(e.target.value);
+
+    await plutus.getQuote();
     if (e.target.value && prices) {
       setTokenTwoAmount((e.target.value * prices.ratio).toFixed(2));
     } else {
@@ -55,42 +49,27 @@ function Swap(props) {
     }
   }
 
-  function switchTokens() {
-    setPrices(null);
-    setTokenOneAmount(null);
-    setTokenTwoAmount(null);
-    const one = tokenOne;
-    const two = tokenTwo;
-    setTokenOne(two);
-    setTokenTwo(one);
-    fetchPrices(two.address, one.address);
-  }
 
   function openModal(asset) {
     setChangeToken(asset);
     setIsOpen(true);
   }
 
-  function modifyToken(i) {
+  async function modifyToken(e: Coin) {
     setPrices(null);
     setTokenOneAmount(null);
     setTokenTwoAmount(null);
-    if (changeToken === 1) {
-      setTokenOne(tokenList[i]);
-      fetchPrices(tokenList[i].address, tokenTwo.address);
-    } else {
-      setTokenTwo(tokenList[i]);
-      fetchPrices(tokenOne.address, tokenList[i].address);
-    }
+
+    plutus.setSelectedCoin(e);
+
+    const quote = await plutus.getQuote();
+
+
     setIsOpen(false);
   }
 
   async function fetchPrices(one, two) {
-    const res = await axios.get(`http://localhost:3001/tokenPrice`, {
-      params: { addressOne: one, addressTwo: two },
-    });
-
-    setPrices(res.data);
+    const res = await plutus.getQuote(), {
   }
 
   useEffect(() => {
@@ -155,12 +134,12 @@ function Swap(props) {
         title="Select a token"
       >
         <div className="modalContent">
-          {tokenList?.map((e, i) => {
+          {TOKEN_LIST.map((e) => {
             return (
               <div
                 className="tokenChoice"
-                key={i}
-                onClick={() => modifyToken(i)}
+                key={e.ticker}
+                onClick={() => modifyToken(e)}
               >
                 <img src={e.img} alt={e.ticker} className="tokenLogo" />
                 <div className="tokenChoiceNames">
@@ -206,12 +185,12 @@ function Swap(props) {
             <DownOutlined />
           </div>
         </div>
-        <div className="swapButton" disabled={!tokenOneAmount || !isConnected}>
-          Swap
-        </div>
+        <button className="swapButton" disabled={!tokenOneAmount || !plutus.account.address} onClick={}>
+          Pay
+        </button>
       </div>
     </>
   );
 }
 
-export default Swap;
+export default Pay;

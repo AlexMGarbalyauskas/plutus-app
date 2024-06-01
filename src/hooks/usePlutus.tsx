@@ -5,7 +5,7 @@ import {
   useContext,
   useState,
 } from "react";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useSendTransaction, useWriteContract } from "wagmi";
 import { PLUTUS_ABI } from "@/assets/abis/PLUTUS_ABI";
 import { Coin, TOKEN_LIST } from "@/utils/tokenlist";
 
@@ -25,11 +25,11 @@ type PlutusContextState = {
 const initialContext: PlutusContextState = {
   user: { name: "", taxNumber: "" },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setUser(_) {},
+  setUser(_) { },
 
   selectedCoin: TOKEN_LIST[0],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setSelectedCoin(_) {},
+  setSelectedCoin(_) { },
 };
 
 const PlutusContext = createContext<PlutusContextState>(initialContext);
@@ -52,11 +52,12 @@ export const PlutusProvider: React.FC<{ children: ReactNode }> = ({
 export const usePlutus = () => {
   const ctx = useContext(PlutusContext)!;
   const { writeContract } = useWriteContract();
+  const { sendTransaction } = useSendTransaction();
 
   const account = useAccount();
 
   const pay = useCallback(
-    (parameters: { tokenAmount: bigint; usdcAmount: bigint }) => {
+    async (parameters: { tokenAmount: bigint; usdcAmount: bigint }) => {
       const transaction = writeContract({
         abi: PLUTUS_ABI,
         address: import.meta.env.PLUTUS_ADDRESS,
@@ -67,6 +68,7 @@ export const usePlutus = () => {
           parameters.usdcAmount,
         ],
       });
+ 
 
       return transaction;
     },
