@@ -2,6 +2,12 @@ import { useCallback, useState } from "react";
 import { useAccount, useWriteContract } from "wagmi";
 import { PLUTUS_ABI } from "@/assets/abis/PLUTUS_ABI";
 import { TOKEN_LIST } from "@/utils/tokenlist";
+import Moralis from "moralis";
+import { EvmChain } from "@moralisweb3/common-evm-utils";
+
+Moralis.start({
+  apiKey: import.meta.env.MORALIS_KEY,
+});
 
 export const usePlutus = () => {
   const { writeContract } = useWriteContract();
@@ -28,9 +34,14 @@ export const usePlutus = () => {
     [selectedCoin.address, writeContract]
   );
 
-  const getQuote = useCallback((parameters: { usdcAmount: bigint }) => {
-    return Math.random() + Number(parameters.usdcAmount);
-  }, []);
+  const getQuote = useCallback(async () => {
+    const response = await Moralis.EvmApi.token.getTokenPrice({
+      address: selectedCoin.address,
+      chain: EvmChain.AVALANCHE,
+    });
+
+    return response.result.usdPrice;
+  }, [selectedCoin.address]);
 
   return { pay, account, selectedCoin, setSelectedCoin, getQuote };
 };

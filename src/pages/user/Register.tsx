@@ -9,8 +9,17 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
+import { registerSchema } from "@/schemes/userSchemes";
+import { ZodObject, ZodString, ZodNumber, ZodTypeAny } from "zod";
 
 export function Register() {
+  const navigate = useNavigate();
+  const form = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {},
+  });
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader className="space-y-2">
