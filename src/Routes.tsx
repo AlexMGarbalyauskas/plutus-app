@@ -1,8 +1,8 @@
-import * as React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { UserProvider } from "./hooks/useUser";
-import Register from "./pages/user/Register";
+import { Register } from "./pages/user/Register";
+import Pay from "./pages/user/Pay";
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       },
       {
         path: "pay",
-        element: <div>Pay</div>,
+        element: <Pay />,
       },
     ],
   },
