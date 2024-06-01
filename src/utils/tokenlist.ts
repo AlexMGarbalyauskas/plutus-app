@@ -6,7 +6,6 @@ export const TOKEN_LIST = [
     address: "0x5947BB275c521040051D82396192181b413227A3",
     decimals: 18,
   },
-
   {
     ticker: "USDT",
     img: "https://cdn.moralis.io/eth/0xdac17f958d2ee523a2206206994597c13d831ec7.png",
@@ -94,4 +93,10 @@ export const QUOTE_TOKEN = {
   decimals: 6,
 };
 
-export type Coin = (typeof TOKEN_LIST)[0];
+export type Coin = {
+  ticker: string;
+  img: string;
+  name: string;
+  address: string;
+  decimals: number;
+};

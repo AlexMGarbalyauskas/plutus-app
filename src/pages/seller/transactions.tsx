@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 export function Component() {
   return (
@@ -18,12 +18,12 @@ export function Component() {
             <div>$100.00</div>
             <div>0.0025 BTC</div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 bc1q...
               </Link>
             </div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0x123...
               </Link>
             </div>
@@ -35,12 +35,12 @@ export function Component() {
             <div>$50.00</div>
             <div>0.0012 ETH</div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0x456...
               </Link>
             </div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0x789...
               </Link>
             </div>
@@ -52,12 +52,12 @@ export function Component() {
             <div>$75.00</div>
             <div>0.0018 LTC</div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 ltc1q...
               </Link>
             </div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0xabc...
               </Link>
             </div>
@@ -69,12 +69,12 @@ export function Component() {
             <div>$125.00</div>
             <div>0.0032 BTC</div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 bc1q...
               </Link>
             </div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0xdef...
               </Link>
             </div>
@@ -86,12 +86,12 @@ export function Component() {
             <div>$80.00</div>
             <div>0.0020 ETH</div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0x456...
               </Link>
             </div>
             <div>
-              <Link href="#" className="text-blue-600 hover:underline" prefetch={false}>
+              <Link to="" className="text-blue-600 hover:underline">
                 0xghi...
               </Link>
             </div>
@@ -99,5 +99,5 @@ export function Component() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

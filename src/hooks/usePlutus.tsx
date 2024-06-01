@@ -13,6 +13,7 @@ import axios from "axios";
 export type User = {
   name: string;
   taxNumber: string;
+  amountToPay: number;
 };
 
 export type Payment = {
@@ -32,13 +33,13 @@ type PlutusContextState = {
 };
 
 const initialContext: PlutusContextState = {
-  user: { name: "", taxNumber: "" },
+  user: { name: "", taxNumber: "", amountToPay: 0 },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setUser(_) { },
+  setUser(_) {},
 
   selectedCoin: TOKEN_LIST[0],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  setSelectedCoin(_) { },
+  setSelectedCoin(_) {},
 
   payments: [],
 };
@@ -48,8 +49,12 @@ const PlutusContext = createContext<PlutusContextState>(initialContext);
 export const PlutusProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User>({ name: "", taxNumber: "" });
-  const [selectedCoin, setSelectedCoin] = useState(TOKEN_LIST[0]);
+  const [user, setUser] = useState<User>({
+    name: "",
+    taxNumber: "",
+    amountToPay: 0,
+  });
+  const [selectedCoin, setSelectedCoin] = useState<Coin>(TOKEN_LIST[0]);
 
   const [payments, setPayments] = useState<Payment[]>([]);
 
@@ -97,7 +102,6 @@ export const usePlutus = () => {
           parameters.usdcAmount,
         ],
       });
-
 
       return transaction;
     },

@@ -1,184 +1,138 @@
-import React, { useState, useEffect } from "react";
-import {
-  ArrowDownOutlined,
-  DownOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
-import { useSendTransaction, useWaitForTransaction } from "wagmi";
+import { useState } from "react";
+import { DownOutlined } from "@ant-design/icons";
 import { usePlutus } from "@/hooks/usePlutus";
-import { Coin, TOKEN_LIST } from "@/utils/tokenlist";
+import { Coin, QUOTE_TOKEN, TOKEN_LIST } from "@/utils/tokenlist";
 import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 function Pay() {
   const plutus = usePlutus();
+  const { toast } = useToast();
+
   const [tokenOneAmount, setTokenOneAmount] = useState(0);
-  const [tokenTwoAmount, setTokenTwoAmount] = useState(0);
-  const [tokenOne, setTokenOne] = useState(tokenList[0]);
-  const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
+  const [tokenTwoAmount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [changeToken, setChangeToken] = useState(1);
-  const [prices, setPrices] = useState(0);
-  const [txDetails, setTxDetails] = useState({
-    to: null,
-    data: null,
-    value: null,
-  });
+  const [prices, setPrice] = useState(0);
 
   async function swap() {
-    plutus.pay({ usdcAmount: BigInt(tokenTwoAmount), tokenAmount: BigInt(tokenOneAmount) });
-  }
-  const { data, sendTransaction } = useSendTransaction({
-    request: {
-      from: address,
-      to: String(txDetails.to),
-      data: String(txDetails.data),
-      value: String(txDetails.value),
-    },
-  });
+    try {
+      await plutus.pay({
+        usdcAmount: BigInt(tokenTwoAmount),
+        tokenAmount: BigInt(tokenOneAmount),
+      });
 
-  const { isLoading, isSuccess } = useWaitForTransaction({
-    hash: data?.hash,
-  });
-
-  async function changeAmount(e: React.ChangeEvent<HTMLInputElement>) {
-    setTokenOneAmount(e.target.value);
-
-    const ratio = await plutus.getQuote();
-    if (e.target.value && prices) {
-      setTokenTwoAmount((e.target.value * ratio).toFixed(2));
-    } else {
-      setTokenTwoAmount(0);
+      toast({
+        title: "Payment successful",
+        description: `You have successfully paid ${tokenOneAmount} ${plutus.selectedCoin.ticker} for ${tokenTwoAmount} USDC`,
+      });
+    } catch (e) {
+      console.error(e);
     }
   }
 
-  function openModal(asset) {
-    setChangeToken(asset);
+  function openModal() {
     setIsOpen(true);
   }
 
-  async function modifyToken(e: Coin) {
-    setPrices(0);
+  const modifyToken = async (e: Coin) => {
+    setPrice(0);
     setTokenOneAmount(0);
-    setTokenTwoAmount(0);
 
     plutus.setSelectedCoin(e);
 
     const quote = await plutus.getQuote();
 
-
+    setPrice(quote);
     setIsOpen(false);
-  }
+  };
 
-  async function fetchPrices(one, two) {
-    const res = await plutus.getQuote(), {
-    }
+  return (
+    <>
+      <Dialog open={isOpen} onOpenChange={(_) => setIsOpen(_)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Criar Comunidade</DialogTitle>
+          </DialogHeader>
 
-    useEffect(() => {
-      fetchPrices(tokenList[0].address, tokenList[1].address);
-    }, []);
-
-    useEffect(() => {
-      if (txDetails.to && isConnected) {
-        sendTransaction();
-      }
-    }, [txDetails]);
-
-    useEffect(() => {
-      messageApi.destroy();
-
-      if (isLoading) {
-        messageApi.open({
-          type: "loading",
-          content: "Transaction is Pending...",
-          duration: 0,
-        });
-      }
-    }, [isLoading]);
-
-    useEffect(() => {
-      messageApi.destroy();
-      if (isSuccess) {
-        messageApi.open({
-          type: "success",
-          content: "Transaction Successful",
-          duration: 1.5,
-        });
-      } else if (txDetails.to) {
-        messageApi.open({
-          type: "error",
-          content: "Transaction Failed",
-          duration: 1.5,
-        });
-      }
-    }, [isSuccess]);
-
-    return (
-      <>
-        {contextHolder}
-        <Modal
-          open={isOpen}
-          footer={null}
-          onCancel={() => setIsOpen(false)}
-          title="Select a token"
-        >
-          <div className="modalContent">
-            {TOKEN_LIST.map((e) => {
-              return (
-                <div
-                  className="tokenChoice"
-                  key={e.ticker}
-                  onClick={() => modifyToken(e)}
-                >
-                  <img src={e.img} alt={e.ticker} className="tokenLogo" />
-                  <div className="tokenChoiceNames">
-                    <div className="tokenName">{e.name}</div>
-                    <div className="tokenTicker">{e.ticker}</div>
+          <div className="bg-white dark:bg-gray-950 rounded-lg shadow-lg p-6 w-full max-w-md">
+            <h2 className="text-2xl font-bold mb-4">Select a Token</h2>
+            <ScrollArea className="h-72 rounded-md border border-gray-200 dark:border-gray-800">
+              <div className="grid grid-cols-2 gap-4 p-4">
+                {TOKEN_LIST.map((coin) => (
+                  <div
+                    key={coin.ticker}
+                    className={`flex items-center gap-3 p-3 rounded-md cursor-pointer transition-colors ${
+                      plutus.selectedCoin.ticker === coin.ticker
+                        ? "bg-gray-100 dark:bg-gray-800"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-800"
+                    }`}
+                    onClick={() => modifyToken(coin)}
+                  >
+                    <img
+                      src={coin.img}
+                      alt={coin.name}
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                    <div>
+                      <h3 className="font-semibold">{coin.ticker}</h3>
+                      <p className="text-gray-500 dark:text-gray-400 text-sm">
+                        {coin.name}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </ScrollArea>
           </div>
-        </Modal>
-        <div className="tradeBox">
-          <div className="tradeBoxHeader">
-            <h4>Swap</h4>
-            <Popover
-              content={settings}
-              title="Settings"
-              trigger="click"
-              placement="bottomRight"
-            >
-              <SettingOutlined className="cog" />
-            </Popover>
-          </div>
-          <div className="inputs">
-            <Input
-              placeholder="0"
-              value={tokenOneAmount}
-              onChange={(_) => changeAmount(_)}
-              disabled={!prices}
-            />
-            <Input placeholder="0" value={tokenTwoAmount} disabled={true} />
-            <div className="switchButton" onClick={switchTokens}>
-              <ArrowDownOutlined className="switchArrow" />
-            </div>
-            <div className="assetOne" onClick={() => openModal(1)}>
-              <img src={tokenOne.img} alt="assetOneLogo" className="assetLogo" />
-              {tokenOne.ticker}
-              <DownOutlined />
-            </div>
-            <div className="assetTwo" onClick={() => openModal(2)}>
-              <img src={tokenTwo.img} alt="assetOneLogo" className="assetLogo" />
-              {tokenTwo.ticker}
-              <DownOutlined />
-            </div>
-          </div>
-          <button className="swapButton" disabled={!tokenOneAmount || !plutus.account.address} onClick={ }>
-            Pay
-          </button>
-        </div>
-      </>
-    );
-  }
+        </DialogContent>
+      </Dialog>
+      <div className="tradeBox">
+        <div className="inputs">
+          <Input
+            placeholder="0"
+            value={tokenOneAmount}
+            // onChange={(_) => changeAmount(_)}
+            disabled={true}
+          />
+          <Input placeholder="0" value={tokenTwoAmount} disabled={true} />
 
-  export default Pay;
+          <div className="assetOne" onClick={() => openModal()}>
+            <img
+              src={plutus.selectedCoin.img}
+              alt="assetOneLogo"
+              className="assetLogo"
+            />
+            {plutus.selectedCoin.ticker}
+            <DownOutlined />
+          </div>
+          <div className="assetTwo">
+            <img
+              src={QUOTE_TOKEN.img}
+              alt="assetOneLogo"
+              className="assetLogo"
+            />
+            {QUOTE_TOKEN.ticker}
+          </div>
+        </div>
+        <button
+          className="swapButton"
+          disabled={!tokenOneAmount || !plutus.account.address}
+          onClick={swap}
+        >
+          Pay
+        </button>
+      </div>
+    </>
+  );
+}
+
+export default Pay;

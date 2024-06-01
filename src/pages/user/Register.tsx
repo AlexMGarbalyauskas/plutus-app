@@ -11,11 +11,12 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { registerSchema } from "@/schemes/userSchemes";
 import { useCallback } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { usePlutus } from "@/hooks/usePlutus";
 import RegisteredInput from "@/components/form/RegisteredInput";
+import { Form } from "@/components/ui/form";
 
 export function Register() {
   const plutus = usePlutus();
@@ -27,9 +28,12 @@ export function Register() {
 
   const submit = useCallback(
     (data: z.infer<typeof registerSchema>) => {
+      console.log(data);
+
       plutus.user.setUser({
         name: data.name,
         taxNumber: data.taxNumber,
+        amountToPay: data.amount,
       });
 
       navigate("/pay", { replace: true });
@@ -77,7 +81,7 @@ export function Register() {
                   $
                 </span>
                 <RegisteredInput
-                  hookForm={form}
+                  hookForm={}
                   id="amount"
                   type="number"
                   placeholder="Enter amount"
