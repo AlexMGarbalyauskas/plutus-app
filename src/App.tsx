@@ -1,24 +1,25 @@
 import { useState } from "react";
 import "./App.css";
 import React from "react";
+import Register from "./pages/user/Register";
+import Swap from "./pages/Swap";
 
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+
+<div className="App">
+      <Header connect={connect} isConnected={isConnected} address={address} />
+      <div className="mainWindow">
+        <Routes>
+          <Route path="/" element={<Swap isConnected={isConnected} address={address} />} />
+          <Route path="/Signup" element={<Signup />} />
+        </Routes>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+
+    </div>
     </>
   );
 }

@@ -7,7 +7,7 @@ import Pay from "./pages/user/Pay";
 const router = createBrowserRouter([
   {
     path: "",
-    element: <App />,
+    element: <App  />,
   },
   {
     path: "user",
