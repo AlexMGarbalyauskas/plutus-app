@@ -90,4 +90,6 @@ export const TOKEN_LIST = [
     "address": "0x63a72806098Bd3D9520cC43356dD78afe5D386D9",
     "decimals": 18
   }
-] as const ;
+] as const;
+
+export type Coin = (typeof TOKEN_LIST)[0];
