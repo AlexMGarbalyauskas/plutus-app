@@ -2,6 +2,7 @@ import * as React from "react";
 import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import App from "./App";
 import { UserProvider } from "./hooks/useUser";
+import Register from "./pages/user/Register";
 
 const router = createBrowserRouter([
   {
@@ -18,7 +19,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "register",
-        element: <div>Profile</div>,
+        element: <Register />,
       },
       {
         path: "pay",
